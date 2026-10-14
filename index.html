@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peru Clicker Premium</title>
+    <style>
+        body{font-family:'Arial Black',sans-serif;text-align:center;background:radial-gradient(circle,#ffeded 0%,#ffb6b6 100%);color:#333;margin:0;padding:15px}
+        .container{max-width:550px;margin:0 auto;background:rgba(255,255,255,.95);padding:20px;border-radius:25px;box-shadow:0 12px 25px rgba(0,0,0,.25);border:5px solid #d91414}
+        h1{color:#d91414;margin:0;font-size:28px;text-shadow:2px 2px 0 #fff,4px 4px 0 #000;text-transform:uppercase}
+        .stats{background:#fee;padding:12px;border-radius:15px;margin:15px 0;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:8px;border:2px dashed #d91414}
+        #contador{font-size:34px;color:#b00f0f;margin:10px 0;display:block;text-shadow:1px 1px 0 #fff,2px 2px 0 #aaa}
+        .paloma-placeholder{width:180px;height:180px;margin:15px auto;background:url('https://unsplash.com') center/cover;border-radius:50%;border:4px solid #d91414;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 15px rgba(0,0,0,.3)}
+        #paloma-btn{font-size:100px;background:none;border:none;cursor:pointer;transition:transform .05s;user-select:none;padding:0;margin:0}
+        #paloma-btn:active{transform:scale(.82)}
+        .seccion-titulo{background:linear-gradient(90deg,#d91414,#ff4d4d);color:white;padding:6px;border-radius:8px;font-size:14px;margin-top:20px;text-transform:uppercase;box-shadow:0 3px 6px rgba(0,0,0,.1)}
+        .scroll-box{max-height:250px;overflow-y:auto;border:2px solid #ddd;border-radius:12px;padding:8px;background:#fffdfd;margin-top:8px;text-align:left}
+        .fila-item{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:10px;margin:6px 0;border-radius:10px;border-left:5px solid #d91414;box-shadow:0 2px 4px rgba(0,0,0,.08)}
+        .info{font-size:12px}
+        .info strong {display:block;font-size:14px;color:#111}
+        .fila-item button{background:linear-gradient(135deg,#ffd700,#ffa500);color:#333;border:1px solid #d4af37;padding:8px 12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:11px;min-width:100px;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+        .fila-item button:disabled{background:#e0e0e0!important;border:1px solid #ccc!important;color:#888;cursor:not-allowed;box-shadow:none}
+        .fila-rebirth{border-left:5px solid #8a2be2}
+        .fila-rebirth button{background:linear-gradient(135deg,#a040ff,#7010d0);color:white;border:1px solid #5000a0}
+        #btn-main-rebirth{background:linear-gradient(135deg,#8a2be2,#4b0082);color:white;width:100%;padding:12px;font-size:15px;border:none;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:15px;box-shadow:0 4px 10px rgba(138,43,226,.3)}
+        #btn-main-rebirth:disabled{background:#ccc!important;box-shadow:none;cursor:not-allowed}
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🇵🇪 Peru Clicker 🇵🇪</h1>
+    <div class="stats">
+        <div>Palomas por Seg (PPS): <strong id="pps-txt">0</strong></div>
+        <div>Multiplicador Rebirth: <strong id="mult-txt">x1.0</strong></div>
+        <div>Total Renacimientos: <strong id="rebirths-txt">0</strong></div>
+        <div>Poder Espiritual: <strong id="poder-txt">0</strong></div>
+    </div>
+    <span id="contador">0 Palomas</span>
+    <div class="paloma-placeholder"><button id="paloma-btn">🕊️</button></div>
+    <button id="btn-main-rebirth" onclick="hacerRebirth()">Renacer (Requiere 50,000 Palomas)<br><small>Te otorga +1 de Poder Espiritual</small></button>
+    <div class="seccion-titulo">🌀 Tienda Ancestral (100 Mejoras)</div>
+    <div class="scroll-box" id="contenedor-rebirth"></div>
+    <div class="seccion-titulo">🛒 Mercado Peruano (100 Objetos)</div>
+    <div class="scroll-box" id="contenedor-tienda"></div>
+</div>
+<script>
+    let palomas=0,totalRebirths=0,multiplicadorRebirth=1.0,poderEspiritual=0,baseClick=1,tiendaObjetos=[],tiendaRebirth=[];
+    const pMeme=["Chupetín","Tapir","Inca Kola","Ceviche","Pollo a la Brasa","Cachín","Paloma","Llama","Cuy","Tigresillo","Chacalón","Susy Díaz","Melcochita","Huayno","Mototaxi","Pisco","Papa","Chicha","Olluquito","Ají de Gallina"];
+    const sMeme=["Trujillo","590","Supremo","Galáctico","Incaico","Bravazo","Legendario","Chichero","Criollo","Serrano","Costeño","Selvático","Automático","de la Esquina","VIP","Sayayín","Pro","de Oro","Místico","Espacial"];
+    const pRebirth=["Fuerza","Bendición","Espíritu","Legado","Furia","Aliento","Poder","Alma","Corona","Manto","Rayo","Escudo","Luz","Sabiduría","Ancestros","Tótem","Pacto","Esencia","Riqueza","Destino"];
+    const sRebirth=["del Inca","Machu Picchu","del Cóndor","Nazca","Chavín","del Sol","de la Luna","del Titicaca","Sagrado","Eterno","Inmortal","Imperial","Cósmico","Divino","Total","Supremo","Ancestral","Runas","Mitológico","Inquebrantable"];
+    const boxTienda=document.getElementById("contenedor-tienda");
+    for(let i=1;i<=100;i++){
+        let nom=pMeme[i%pMeme.length]+" "+sMeme[(i*3)%sMeme.length]+" #"+i,pCalc=Math.floor(15*Math.pow(1.24,i)),bCalc=Math.floor(1*Math.pow(1.21,i));
+        tiendaObjetos.push({id:i,nombre:nom,precio:pCalc,basePrecio:pCalc,beneficio:bCalc,cantidad:0});
+        boxTienda.innerHTML+=`<div class="fila-item"><div class="info"><strong>${nom}</strong><small>+${bCalc.toLocaleString()} PPS • Cant: <span id="cant-obj-${i-1}">0</span></small></div><button id="btn-obj-${i-1}" onclick="comprarObjeto(${i-1})">${pCalc.toLocaleString()} P.</button></div>`;
+    }
+    const boxRebirth=document.getElementById("contenedor-rebirth");
+    for(let i=1;i<=100;i++){
+        let nom=pRebirth[i%pRebirth.length]+" "+sRebirth[(i*2)%sRebirth.length]+" #"+i,multVal=0.5*i;
+        tiendaRebirth.push({id:i,nombre:nom,precio:i,comprado:false,multiplicador:multVal});
+        boxRebirth.innerHTML+=`<div class="fila-item fila-rebirth"><div class="info"><strong>${nom}</strong><small>+ ${(multVal*100).toFixed(0)}% perm • <span id="estado-reb-${i-1}">No comprado</span></small></div><button id="btn-reb-${i-1}" onclick="comprarMejoraRebirth(${i-1})">${i} Poder</button></div>`;
+    }
+    document.getElementById("paloma-btn").addEventListener("click",()=>{palomas+=baseClick*multiplicadorRebirth;actualizarPantalla();});
+    function comprarObjeto(idx){
+        let obj=tiendaObjetos[idx];
+        if(palomas>=obj.precio){palomas-=obj.precio;obj.cantidad++;obj.precio=Math.floor(obj.basePrecio*Math.pow(1.15,obj.cantidad));document.getElementById(`cant-obj-${idx}`).innerText=obj.cantidad;document.getElementById(`btn-obj-${idx}`).innerText=obj.precio.toLocaleString()+" P.";actualizarPantalla();}
+    }
+    function comprarMejoraRebirth(idx){
+        let reb=tiendaRebirth[idx];
+        if(poderEspiritual>=reb.precio&&!reb.comprado){poderEspiritual-=reb.precio;reb.comprado=true;document.getElementById(`estado-reb-${idx}`).innerText="Comprado";document.getElementById(`estado-reb-${idx}`).style.color="#28a745";document.getElementById(`btn-reb-${idx}`).disabled=true;document.getElementById(`btn-reb-${idx}`).innerText="Adquirido";recalcularMultiplicador();actualizarPantalla();}
+    }
+    function hacerRebirth(){
+        if(palomas>=50000){totalRebirths++;poderEspiritual+=1;palomas=0;tiendaObjetos.forEach((obj,idx)=>{obj.cantidad=0;obj.precio=obj.basePrecio;document.getElementById(`cant-obj-${idx}`).innerText="0";document.getElementById(`btn-obj-${idx}`).innerText=obj.precio.toLocaleString()+" P.";});recalcularMultiplicador();actualizarPantalla();alert("¡Has renacido!");}
+    }
+    function recalcularMultiplicador(){let bRe=totalRebirths*1.0,bMe=0;tiendaRebirth.forEach(reb=>{if(reb.comprado)bMe+=reb.multiplicador;});multiplicadorRebirth=1.0+bRe+bMe;}
+    function calcularPps(){let t=0;tiendaObjetos.forEach(obj=>{t+=obj.cantidad*obj.beneficio;});return t*multiplicadorRebirth;}
+    function actualizarPantalla(){
+        let pps=calcularPps();document.getElementById("contador").innerText=Math.floor(palomas).toLocaleString()+" Palomas";document.getElementById("pps-txt").innerText=pps.toLocaleString(undefined,{maximumFractionDigits:1});document.getElementById("mult-txt").innerText="x"+multiplicadorRebirth.toFixed(1);document.getElementById("rebirths-txt").innerText=totalRebirths;document.getElementById("poder-txt").innerText=poderEspiritual;document.getElementById("btn-main-rebirth").disabled=palomas<50000;
+        tiendaObjetos.forEach((obj,idx)=>{document.getElementById(`btn-obj-${idx}`).disabled=palomas<obj.precio;});tiendaRebirth.forEach((reb,idx)=>{if(!reb.comprado)document.getElementById(`btn-reb-${idx}`).disabled=poderEspiritual<reb.precio;});
+    }
+    setInterval(()=>{let pps=calcularPps();if(pps>0){palomas+=pps/10;actualizarPantalla();}},100);actualizarPantalla();
+</script>
+</body>
+</html>
